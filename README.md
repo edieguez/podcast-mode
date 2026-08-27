@@ -32,7 +32,7 @@ cheaply and idempotently, regardless of mpv build/config quirks.
 Also exposes three `script-message`s for triggering from outside a key
 binding - another script, or the sibling
 [mpv-remote](https://github.com/edieguez/mpv-remote) CLI's `podcast
-[on|off|toggle]` subcommand:
+[on|off]` subcommand:
 
 - `podcast-mode-on`
 - `podcast-mode-off`
