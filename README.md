@@ -18,6 +18,34 @@ on, as a defensive safety net - a runtime `vid` change is very likely to
 persist across playlist items on its own, but this makes it certain,
 cheaply and idempotently, regardless of mpv build/config quirks.
 
+Whether podcast mode is currently on is derived by observing `vid`
+itself, not tracked in a separate flag - so the toggle can never get out
+of sync with what's actually playing, no matter what else changes `vid`.
+
+## Session-only by design
+
+Podcast mode is never remembered per file - toggling it only ever
+affects the current session. This depends on excluding `vid` from
+mpv's `--watch-later-options`; without that, mpv's own resume-on-reopen
+behavior would silently reapply "audio only" to a file the next time
+it's opened, even though the user never asked for that on that file.
+Add to `mpv.conf` (or any config mpv reads at startup):
+
+```
+watch-later-options-del=vid
+```
+
+## Self-healing video restore
+
+When turning podcast mode off, the plugin checks about a second later
+whether the video window actually came back (`vo-configured`). If it
+didn't - which can happen after a macOS sleep/wake cycle drops the GPU
+context, or when a streamed URL's cached fragment has expired in the
+meantime - it reloads the current playlist entry and seeks back to
+where playback left off, rather than leaving the user stuck audio-only
+with no way to tell why. This reload is attempted at most once per
+toggle, and is skipped entirely for files that have no video track.
+
 ## Installation
 
 1. Copy or symlink `scripts/podcast_mode.lua` into mpv's `scripts/`
